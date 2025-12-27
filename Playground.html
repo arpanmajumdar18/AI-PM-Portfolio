@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>LLM Inference Tuning Playground — Gemini (Final, Corrected & Self-Debugging)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+:root {
+  --bg: #020617;
+  --card: #0f172a;
+  --border: #334155;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #38bdf8;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --warn: #f59e0b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: radial-gradient(circle at top, #020617, #020617);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.container { max-width: 1150px; margin: auto; }
+
+.card {
+  background: linear-gradient(180deg, #020617, var(--card));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+h1 { color: #e0f2fe; margin-top: 0; }
+h2 { color: #bae6fd; margin-bottom: 6px; }
+h3 { color: #e0f2fe; margin: 12px 0 4px; }
+
+p { color: var(--muted); font-size: 14px; margin: 6px 0 10px; }
+
+label { font-size: 13px; display: block; margin-top: 10px; }
+
+input, textarea, select {
+  width: 100%;
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+textarea { min-height: 110px; resize: vertical; }
+
+button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(180deg, #0284c7, #0369a1);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.status { font-size: 13px; margin-top: 6px; }
+.good { color: var(--good); }
+.bad { color: var(--bad); }
+.warn { color: var(--warn); }
+
+.output {
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  white-space: pre-wrap;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* ===== HARD FIX: Response Style alignment ===== */
+
+#presets {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 14px;
+}
+
+.preset {
+  width: 100%;
+}
+
+.preset label {
+  display: grid;
+  grid-template-columns: 20px auto;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.preset input[type="radio"] {
+  margin: 0;
+  justify-self: start;
+  align-self: center;
+  transform: scale(1.15);
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🧪 Gemini Inference Tuning Playground</h1>
+<p>This playground teaches how “fine-tuning-like” behavior comes from prompts and inference controls — not retraining.</p>
+
+<!-- SECTION 1 -->
+<div class="card">
+<h2>🔐 API Key Setup</h2>
+<label>Gemini API Key</label>
+<input id="apiKey" type="password" placeholder="Paste your API key here" />
+<button id="validateBtn">Validate API Key</button>
+<div id="apiStatus" class="status"></div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="card">
+<h2>🧠 Model Selection</h2>
+<label>All Gemini Models</label>
+<select id="modelSelect" disabled></select>
+<div id="modelInfo" class="status"></div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="card">
+<h2>🎭 Response Style</h2>
+<div id="presets" class="preset-list"></div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="card">
+<h2>🎛️ Model Controls</h2>
+
+<div class="control-row">
+  <h3>Temperature</h3>
+  <div class="control-inputs">
+    <input id="temperature" type="range" min="0" max="1.5" step="0.01">
+    <input id="temperatureNum" type="number" min="0" max="1.5" step="0.01">
+  </div>
+</div>
+
+<div class="control-row">
+  <h3>Top-P</h3>
+  <div class="control-inputs">
+    <input id="topP" type="range" min="0" max="1" step="0.01">
+    <input id="topPNum" type="number" min="0" max="1" step="0.01">
+  </div>
+</div>
+
+<div class="control-row">
+  <h3>Top-K</h3>
+  <div class="control-inputs">
+    <input id="topK" type="range" min="1" max="100">
+    <input id="topKNum" type="number" min="1" max="100">
+  </div>
+</div>
+
+<div class="control-row">
+  <h3>Max Output Tokens</h3>
+  <div class="control-inputs">
+    <input id="maxTokens" type="range" min="50" max="2048">
+    <input id="maxTokensNum" type="number" min="50" max="2048">
+  </div>
+</div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="card">
+<h2>🧠 Instruction & Prompt</h2>
+<label>System / Instruction Prompt</label>
+<textarea id="systemPrompt"></textarea>
+<label>User Prompt</label>
+<textarea id="userPrompt" placeholder="Ask something…"></textarea>
+<button id="runBtn" disabled>Run Prompt</button>
+</div>
+
+<!-- SECTION 6 -->
+<div class="card">
+<h2>📤 Model Output</h2>
+<div id="output" class="output">Waiting for input…</div>
+<div id="meta" class="status"></div>
+</div>
+
+<!-- DEBUG -->
+<div class="card">
+<h2>🛠 Runtime Self-Check & Errors</h2>
+<div id="debug" class="debug">No runtime errors detected.</div>
+</div>
+
+<!-- SECTION 8 -->
+<footer>
+<h2>📘 Understanding Fine-Tuning (Simple Explanation)</h2>
+
+<p><strong>What is Temperature?</strong><br>
+Temperature controls how adventurous the model is.  
+Low temperature means careful, predictable answers.  
+High temperature means creative, varied answers.</p>
+
+<p><strong>What are Top-P and Top-K?</strong><br>
+They control how many possible next words the model is allowed to consider.  
+Smaller values = safer, more focused answers.  
+Larger values = more variety and surprise.</p>
+
+<p><strong>Why this is NOT real fine-tuning</strong><br>
+Nothing in this playground changes the model itself.  
+All behavior changes happen only at response time.</p>
+
+<p><strong>What real fine-tuning means</strong><br>
+Real fine-tuning retrains the model on many examples so its behavior changes permanently.</p>
+
+<p><strong>The difference</strong><br>
+Prompt engineering = telling the model what to do in words.<br>
+Inference tuning = adjusting randomness and creativity.<br>
+Fine-tuning = teaching the model new habits through training.</p>
+
+<p><strong>API keys</strong><br>
+API keys are like passwords.  
+Anyone with your key can use your quota — keep them safe.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  const debug = document.getElementById("debug");
+  function logError(msg) {
+    debug.textContent += "\n• " + msg;
+  }
+
+  window.addEventListener("error", e => {
+    debug.textContent = "Runtime error detected:\n• " + e.message;
+  });
+
+  const apiKeyInput = document.getElementById("apiKey");
+  const validateBtn = document.getElementById("validateBtn");
+  const apiStatus = document.getElementById("apiStatus");
+  const modelSelect = document.getElementById("modelSelect");
+  const modelInfo = document.getElementById("modelInfo");
+  const runBtn = document.getElementById("runBtn");
+  const output = document.getElementById("output");
+  const meta = document.getElementById("meta");
+
+  const sync = (a,b)=>{a.oninput=()=>b.value=a.value;b.oninput=()=>a.value=b.value;};
+  sync(temperature,temperatureNum);
+  sync(topP,topPNum);
+  sync(topK,topKNum);
+  sync(maxTokens,maxTokensNum);
+
+  const presets = {
+    "Innovative Thinker": {t:1.2,p:.95,k:40,m:512,s:"You are a creative thinker who proposes novel ideas."},
+    "Factual & Precise": {t:.2,p:.8,k:20,m:512,s:"You answer with precise, factual information."},
+    "Funny Kid (8–10)": {t:1.1,p:.9,k:50,m:300,s:"You are a funny child using simple words."},
+    "Informed PM": {t:.6,p:.9,k:40,m:700,s:"You are a senior product manager."},
+    "No-Nonsense": {t:.1,p:.7,k:15,m:400,s:"You give blunt factual answers."},
+    "Custom": null
+  };
+
+  const presetDiv = document.getElementById("presets");
+  Object.keys(presets).forEach((name,i)=>{
+    const d=document.createElement("div");
+    d.className="preset";
+    d.innerHTML = `
+  <label>
+    <input type="radio" name="preset" ${i === 0 ? "checked" : ""}>
+    <span>${name}</span>
+  </label>
+`;
+
+    d.onclick=()=>{
+      const p=presets[name]; if(!p)return;
+      temperature.value=temperatureNum.value=p.t;
+      topP.value=topPNum.value=p.p;
+      topK.value=topKNum.value=p.k;
+      maxTokens.value=maxTokensNum.value=p.m;
+      systemPrompt.value=p.s;
+    };
+    presetDiv.appendChild(d);
+    if(i===0)d.onclick();
+  });
+
+  const BASE="https://generativelanguage.googleapis.com/v1beta";
+
+  const ANNOUNCED_GEMINI_3_MODELS = [
+    { name: "models/gemini-3-pro", label: "Gemini 3 Pro (Announced)" },
+    { name: "models/gemini-3-flash", label: "Gemini 3 Flash (Announced)" }
+  ];
+
+  validateBtn.onclick=async()=>{
+    try{
+      apiStatus.textContent="Validating API key…";
+      const r=await fetch(`${BASE}/models?key=${apiKeyInput.value}`);
+      const j=await r.json();
+      modelSelect.innerHTML="";
+      (j.models||[]).forEach(m=>{
+        const o=document.createElement("option");
+        o.value=m.name;o.textContent=m.name;
+        modelSelect.appendChild(o);
+      });
+
+      ANNOUNCED_GEMINI_3_MODELS.forEach(m=>{
+        if (![...modelSelect.options].some(o=>o.value===m.name)){
+          const o=document.createElement("option");
+          o.value=m.name;
+          o.textContent=`${m.label} ⚠`;
+          modelSelect.appendChild(o);
+        }
+      });
+
+      modelSelect.disabled=false;
+      runBtn.disabled=false;
+      apiStatus.textContent="API key valid. Models loaded.";
+      apiStatus.className="status good";
+      modelInfo.textContent=`${modelSelect.length} models available.`;
+    }catch(e){
+      apiStatus.textContent="API key validation failed.";
+      apiStatus.className="status bad";
+      logError("API key validation error");
+    }
+  };
+
+  runBtn.onclick=async()=>{
+    if(!userPrompt.value.trim()){
+      output.textContent="Please enter a user prompt.";
+      return;
+    }
+    output.textContent="Generating…";
+    const body={
+      contents:[{role:"user",parts:[{text:systemPrompt.value+"\n\n"+userPrompt.value}]}],
+      generationConfig:{
+        temperature:+temperature.value,
+        topP:+topP.value,
+        topK:+topK.value,
+        maxOutputTokens:+maxTokens.value
+      }
+    };
+    try{
+      let r=await fetch(`${BASE}/${modelSelect.value}:generateContent?key=${apiKeyInput.value}`,{
+        method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)
+      });
+      if(!r.ok) throw new Error();
+      const j=await r.json();
+      output.textContent=j.candidates?.[0]?.content?.parts?.[0]?.text||"No output.";
+      meta.textContent=`Model used: ${modelSelect.value}`;
+    }catch{
+      output.textContent="Selected model failed. Try another model.";
+      meta.textContent="Generation failed safely.";
+      logError("Generation error for selected model");
+    }
+  };
+})();
+</script>
+</body>
+</html>

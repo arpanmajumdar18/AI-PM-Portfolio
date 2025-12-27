@@ -1,0 +1,58 @@
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# OneDrive temporary files
+~$*
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+\.venv/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Logs and runtime files
+*.log
+.env
+.env.*
+
+# Build outputs
+dist/
+build/
+.DS_Store
+node_modules/
+.env
+*.log
+.vscode/
+.idea/
+Thumbs.db
+*.pyc
+__pycache__/
+*.class
+*.jar
+*.iml
+
+# OneDrive
+*.lnk
+
+# Mac files
+Icon?
