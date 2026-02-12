@@ -4,7 +4,7 @@
 
 [Live Demo – Enterprise Page](https://enterprise-voice-forge.lovable.app)
 
-[Notion](https://img.shields.io/badge/Notion-Full_Documentation-white?style=for-the-badge&logo=notion)(https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-2f27aa893b9480419d13e2118dad38af?source=copy_link)
+[Notion](https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-2f27aa893b9480419d13e2118dad38af?source=copy_link)
 
 [Enterprise Leader's Framework for AI Voice Agent ROI](https://www.notion.so/The-Enterprise-Leader-s-Framework-for-AI-Voice-Agent-ROI-2f57aa893b9480e5b1fedf77a0589bd8?source=copy_link)
 
