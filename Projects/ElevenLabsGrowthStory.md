@@ -17,7 +17,10 @@
 
 ---
 
-## 📌 <ins>[Executive Summary]</ins>(https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-Executive-Summary-2f77aa893b948080a6d0f832394072f1?source=copy_link)
+<h1 id="my-anchor"><a href="https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-Executive-Summary-2f77aa893b948080a6d0f832394072f1?source=copy_link" style="text-decoration: underline; color: inherit; display: block;">Executive Summary</a></h1>
+
+
+## 📌 <ins>[Executive Summary](https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-Executive-Summary-2f77aa893b948080a6d0f832394072f1?source=copy_link)</ins>
 
 **Problem**  
 ElevenLabs needed a scalable, enterprise‑ready go‑to‑market motion for its AI Voice Agents Platform. The challenge: serve **two fundamentally different audiences** (startups seeking affordable scale vs. enterprises requiring security and transformation) without diluting brand or wasting resources.
