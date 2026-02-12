@@ -18,8 +18,11 @@ Enterprise Landing Page: [https://enterprise-voice-forge.lovable.app]
 # ElevenLabs Enterprise GTM Strategy – 7‑Day Sprint 🚀
 
 [Live Demo – Startup Page](https://grow-with-voice.lovable.app)
+
 [Live Demo – Enterprise Page](https://enterprise-voice-forge.lovable.app)
+
 [Notion](https://img.shields.io/badge/Notion-Full_Documentation-white?style=for-the-badge&logo=notion)(https://celestial-physician-a13.notion.site/ElevenLabs-Growth-Project-2f27aa893b9480419d13e2118dad38af?source=copy_link)
+
 
 
 > **Designing & De‑risking a Dual‑Funnel GTM Motion for ElevenLabs Agents Platform**  
